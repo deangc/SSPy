@@ -1,0 +1,44 @@
+import os;
+import pyodbc;
+import logging;
+
+backupfolder = 'F:\SQLBackup'
+databasename = 'General'
+logfile      = 'readbackupfiles.log'
+
+#logging.basicConfig(filename=logfilename, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %H:%M:%S %p >',
+
+logging.basicConfig(filename=logfile, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %H:%M:%S %p >', level=logging.DEBUG)
+
+
+conn = pyodbc.connect(
+    'DRIVER={ODBC Driver 13 for SQL Server}; SERVER=HYPERBLAB\SQLSERVER2016; Database=General; Trusted_Connection=yes;'
+)
+
+conn.autocommit = True
+
+logging.debug('program entry')
+
+cursor=conn.cursor()
+
+sqlstring = "RESTORE HEADERONLY FROM DISK ='F:\SQLBackup\General_A53D48BC.bak'"
+
+#cursor.execute(sqlstring)
+
+print(sqlstring)
+
+try:
+    cursor.execute(sqlstring)
+    while cursor.nextset():
+        #pass
+        rows = cursor.fetchall()
+        for row in rows:
+            print(row.DatabaseName)
+except pyodbc.Error as err:
+    logging.warning(err)
+
+
+conn.close()
+
+
+
